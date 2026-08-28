@@ -1,0 +1,32 @@
+/* =========================================================
+   SCALE & CUSTOMIZATION CONFIGURATION
+   Edit these CSS variables to scale any element on the page!
+   ========================================================= */
+
+:root {
+  /* Color System */
+  --paper: #f4f0e8;
+  --title-color: #2D5A3D;             /* KitchenOS text main color */
+  --cta-text-color: #ffffff;           /* CTA text color */
+  --cta-outline-color: #2D5A3D;        /* CTA text outline matching KitchenOS main color */
+
+  /* KitchenOS Title Scaling & Typography Options */
+  --title-scale: 1;                       /* Title scale factor (e.g. 0.5, 0.8, 1, 1.2, 1.5, 2) */
+  --title-font-size: clamp(3.5rem, 8.5vw, 7.5rem); /* Title base font size */
+  --title-letter-spacing: -0.01em;         /* Letter spacing */
+
+  /* CTA Buttons Scaling Options */
+  --cta-container-scale: 1;               /* Global scaling factor for CTA container */
+  --orange-btn-scale: 1;                  /* Orange Main CTA button scale */
+  --green-btn-scale: 1;                   /* Green Secondary CTA button scale */
+  --cta-gap: 1.5rem;                      /* Gap between CTA buttons */
+
+  /* Floating Fruits Scaling & Interaction Options */
+  --fruit-scale: 1;                       /* Global fruit scale multiplier (e.g. 0.5, 0.8, 1, 1.5, 2) */
+  --fruit-hover-scale: 1.25;              /* Fruit hover scale multiplier (e.g. 1.15, 1.25, 1.4) */
+
+  /* Background discPf Options */
+  --bg-opacity: 0.35;                     /* Background image opacity (0 to 1) */
+  --bg-rotation: 90deg;                   /* Background image rotation angle */
+  --bg-brightness: 0.7;                   /* Background image brightness */
+}
