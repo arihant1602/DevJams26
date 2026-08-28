@@ -2,19 +2,18 @@
 
 import { useEffect, useState } from "react";
 
+// Only verified fruits and food items (no stars or UI buttons)
 const FRUIT_IMAGES = [
   "/Images/Apple.png",
-  "/Images/Beer.png",
-  "/Images/Bread.png",
-  "/Images/Carrot.png",
-  "/Images/Coffee.png",
-  "/Images/Donut.png",
-  "/Images/Mushroom.png",
-  "/Images/Omelette.png",
   "/Images/Orange_Fruit.png",
   "/Images/Watermelon.png",
-  "/Images/Star_Green.png",
-  "/Images/Star_Orange.png",
+  "/Images/Carrot.png",
+  "/Images/Mushroom.png",
+  "/Images/Donut.png",
+  "/Images/Omelette.png",
+  "/Images/Bread.png",
+  "/Images/Coffee.png",
+  "/Images/Beer.png",
 ];
 
 interface FruitItem {
@@ -33,15 +32,19 @@ export function FloatingFruits() {
   const [fruits, setFruits] = useState<FruitItem[]>([]);
 
   useEffect(() => {
-    const items: FruitItem[] = FRUIT_IMAGES.map((src, i) => {
-      // Spread fruits across the screen canvas
-      const x = Math.floor(Math.random() * 80) + 10;
-      const y = Math.floor(Math.random() * 75) + 5;
-      const size = Math.floor(Math.random() * 60) + 75; // 75px to 135px
-      const duration = Math.floor(Math.random() * 10) + 10; // 10s to 20s
-      const delay = -(Math.random() * 15); // Staggered immediate start
+    // Generate 12 floating fruits with big sizes and staggered animations
+    const items: FruitItem[] = [];
+    const totalCount = 12;
 
-      return {
+    for (let i = 0; i < totalCount; i++) {
+      const src = FRUIT_IMAGES[i % FRUIT_IMAGES.length];
+      const x = Math.floor(Math.random() * 80) + 5;
+      const y = Math.floor(Math.random() * 70) + 5;
+      const size = Math.floor(Math.random() * 100) + 160; // 160px to 260px (a lot bigger!)
+      const duration = Math.floor(Math.random() * 10) + 12; // 12s to 22s
+      const delay = -(Math.random() * 15);
+
+      items.push({
         id: i,
         src,
         x,
@@ -51,8 +54,9 @@ export function FloatingFruits() {
         delay,
         rotation: Math.floor(Math.random() * 360),
         floatType: i % 4,
-      };
-    });
+      });
+    }
+
     setFruits(items);
   }, []);
 
