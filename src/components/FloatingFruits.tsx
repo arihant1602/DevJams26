@@ -79,12 +79,47 @@ export function FloatingFruits() {
     });
 
     setFruits(items);
+
+    // Window global pointer listeners prevent setPointerCapture errors completely
+    const handleWindowPointerMove = (e: PointerEvent) => {
+      if (!activeDrag.current) return;
+      const { id, startX, startY, initialLeftPct, initialTopPct } = activeDrag.current;
+
+      const deltaX = e.clientX - startX;
+      const deltaY = e.clientY - startY;
+
+      const deltaPctX = (deltaX / window.innerWidth) * 100;
+      const deltaPctY = (deltaY / window.innerHeight) * 100;
+
+      const newLeft = Math.max(3, Math.min(87, initialLeftPct + deltaPctX));
+      const newTop = Math.max(3, Math.min(82, initialTopPct + deltaPctY));
+
+      setFruits((prev) =>
+        prev.map((f) => (f.id === id ? { ...f, left: newLeft, top: newTop } : f))
+      );
+    };
+
+    const handleWindowPointerUp = () => {
+      if (!activeDrag.current) return;
+      const id = activeDrag.current.id;
+      activeDrag.current = null;
+      setFruits((prev) =>
+        prev.map((f) => (f.id === id ? { ...f, isDragging: false } : f))
+      );
+    };
+
+    window.addEventListener("pointermove", handleWindowPointerMove);
+    window.addEventListener("pointerup", handleWindowPointerUp);
+
+    return () => {
+      window.removeEventListener("pointermove", handleWindowPointerMove);
+      window.removeEventListener("pointerup", handleWindowPointerUp);
+    };
   }, []);
 
   const handlePointerDown = (id: number, e: React.PointerEvent<HTMLImageElement>) => {
     e.preventDefault();
     e.stopPropagation();
-    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
 
     const fruit = fruits.find((f) => f.id === id);
     if (!fruit) return;
@@ -99,37 +134,6 @@ export function FloatingFruits() {
 
     setFruits((prev) =>
       prev.map((f) => (f.id === id ? { ...f, isDragging: true } : f))
-    );
-  };
-
-  const handlePointerMove = (id: number, e: React.PointerEvent<HTMLImageElement>) => {
-    if (!activeDrag.current || activeDrag.current.id !== id) return;
-
-    const deltaX = e.clientX - activeDrag.current.startX;
-    const deltaY = e.clientY - activeDrag.current.startY;
-
-    const deltaPctX = (deltaX / window.innerWidth) * 100;
-    const deltaPctY = (deltaY / window.innerHeight) * 100;
-
-    const newLeft = Math.max(3, Math.min(87, activeDrag.current.initialLeftPct + deltaPctX));
-    const newTop = Math.max(3, Math.min(82, activeDrag.current.initialTopPct + deltaPctY));
-
-    setFruits((prev) =>
-      prev.map((f) => (f.id === id ? { ...f, left: newLeft, top: newTop } : f))
-    );
-  };
-
-  const handlePointerUp = (id: number, e: React.PointerEvent<HTMLImageElement>) => {
-    if (activeDrag.current?.id === id) {
-      try {
-        (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
-      } catch {
-        // Fallback
-      }
-      activeDrag.current = null;
-    }
-    setFruits((prev) =>
-      prev.map((f) => (f.id === id ? { ...f, isDragging: false } : f))
     );
   };
 
@@ -158,9 +162,6 @@ export function FloatingFruits() {
               className="fruit-img"
               draggable={false}
               onPointerDown={(e) => handlePointerDown(fruit.id, e)}
-              onPointerMove={(e) => handlePointerMove(fruit.id, e)}
-              onPointerUp={(e) => handlePointerUp(fruit.id, e)}
-              onPointerCancel={(e) => handlePointerUp(fruit.id, e)}
             />
           </div>
         );
