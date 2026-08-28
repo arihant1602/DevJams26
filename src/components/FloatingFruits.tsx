@@ -16,18 +16,18 @@ const UNIQUE_FOOD_IMAGES = [
   "/Images/Beer.png",
 ];
 
-// 10 distinct screen zones for uncluttered, well-spaced distribution across screen borders
+// 10 screen zones kept strictly CLEAR of the bottom-left KitchenOS title (left < 38%, top > 58%)
 const SCREEN_ZONES = [
   { left: 8, top: 8 },
   { left: 32, top: 10 },
-  { left: 62, top: 8 },
-  { left: 82, top: 14 },
-  { left: 10, top: 40 },
-  { left: 78, top: 42 },
-  { left: 36, top: 72 },
-  { left: 56, top: 74 },
-  { left: 78, top: 70 },
-  { left: 14, top: 76 },
+  { left: 60, top: 8 },
+  { left: 82, top: 12 },
+  { left: 8, top: 36 },
+  { left: 78, top: 40 },
+  { left: 55, top: 45 },
+  { left: 45, top: 74 },
+  { left: 70, top: 72 },
+  { left: 85, top: 76 },
 ];
 
 interface FruitState {

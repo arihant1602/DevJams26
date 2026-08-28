@@ -76,7 +76,7 @@ a {
 
 .hero-viewport::before {
   content: "";
-  position: fixed;
+  position: absolute;
   top: 50%;
   left: 50%;
   width: 100vh;
@@ -93,10 +93,10 @@ a {
 }
 
 .bottom-left-title {
-  position: fixed;
+  position: absolute;
   bottom: 6vh;
   left: 5vw;
-  z-index: 5; /* Lower than floating fruits (8) so fruits float OVER title */
+  z-index: 5;
   margin: 0;
   padding: 0;
   max-width: 50vw;
@@ -113,11 +113,11 @@ a {
 
 /* Center CTA Container & Buttons */
 .center-cta-container {
-  position: fixed;
+  position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%) scale(var(--cta-container-scale));
-  z-index: 15; /* Above floating fruits (8) and title (5) */
+  z-index: 15;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -198,11 +198,11 @@ a {
 
 /* Floating Fruits Styles */
 .floating-container {
-  position: fixed;
+  position: absolute;
   inset: 0;
   pointer-events: none;
   overflow: hidden;
-  z-index: 8; /* FLOATS ON TOP OF KITCHENOS TEXT (5), BELOW CTA (15) */
+  z-index: 8;
 }
 
 .fruit-wrapper {
@@ -218,7 +218,7 @@ a {
 
 .fruit-wrapper.is-dragging {
   animation: none !important;
-  z-index: 100 !important; /* Holding/dragging fruit comes OVER everything */
+  z-index: 100 !important;
 }
 
 .fruit-img {
