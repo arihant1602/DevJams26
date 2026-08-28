@@ -112,6 +112,14 @@ body {
   text-decoration: none;
   transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.3s ease;
   cursor: pointer;
+  touch-action: none;
+}
+
+.cta-btn.is-dragging {
+  z-index: 100 !important;
+  cursor: grabbing !important;
+  transition: none !important;
+  filter: drop-shadow(0 20px 30px rgba(0, 0, 0, 0.35));
 }
 
 .cta-btn-orange {
