@@ -2,7 +2,8 @@
 
 import { useEffect, useState, useRef } from "react";
 
-const FRUIT_IMAGES = [
+// Exactly 10 unique food items (1 per type, 0 duplicates)
+const UNIQUE_FOOD_IMAGES = [
   "/Images/Apple.png",
   "/Images/Orange_Fruit.png",
   "/Images/Watermelon.png",
@@ -15,6 +16,20 @@ const FRUIT_IMAGES = [
   "/Images/Beer.png",
 ];
 
+// 10 distinct screen zones for uncluttered, well-spaced distribution across screen borders
+const SCREEN_ZONES = [
+  { left: 8, top: 8 },
+  { left: 32, top: 10 },
+  { left: 62, top: 8 },
+  { left: 82, top: 14 },
+  { left: 10, top: 40 },
+  { left: 78, top: 42 },
+  { left: 36, top: 72 },
+  { left: 56, top: 74 },
+  { left: 78, top: 70 },
+  { left: 14, top: 76 },
+];
+
 interface FruitState {
   id: number;
   src: string;
@@ -24,8 +39,6 @@ interface FruitState {
   animType: number;
   duration: number;
   delay: number;
-  dragX: number;
-  dragY: number;
   isDragging: boolean;
 }
 
@@ -35,23 +48,24 @@ export function FloatingFruits() {
     id: number;
     startX: number;
     startY: number;
-    initialDragX: number;
-    initialDragY: number;
+    initialLeftPct: number;
+    initialTopPct: number;
   } | null>(null);
 
   useEffect(() => {
-    const initialItems: FruitState[] = [];
-    const count = 12;
+    // Generate exactly 10 unique items placed in well-spaced screen zones
+    const items: FruitState[] = UNIQUE_FOOD_IMAGES.map((src, i) => {
+      const zone = SCREEN_ZONES[i];
+      const jitterX = (Math.random() - 0.5) * 6; // ±3%
+      const jitterY = (Math.random() - 0.5) * 6; // ±3%
 
-    for (let i = 0; i < count; i++) {
-      const src = FRUIT_IMAGES[i % FRUIT_IMAGES.length];
-      const left = Math.floor(Math.random() * 70) + 10;
-      const top = Math.floor(Math.random() * 65) + 10;
-      const baseSize = Math.floor(Math.random() * 50) + 140;
-      const duration = Math.floor(Math.random() * 8) + 14;
+      const left = Math.max(5, Math.min(85, zone.left + jitterX));
+      const top = Math.max(5, Math.min(78, zone.top + jitterY));
+      const baseSize = Math.floor(Math.random() * 30) + 125; // 125px to 155px
+      const duration = Math.floor(Math.random() * 6) + 14;
       const delay = -(Math.random() * 12);
 
-      initialItems.push({
+      return {
         id: i,
         src,
         left,
@@ -60,13 +74,11 @@ export function FloatingFruits() {
         animType: i % 4,
         duration,
         delay,
-        dragX: 0,
-        dragY: 0,
         isDragging: false,
-      });
-    }
+      };
+    });
 
-    setFruits(initialItems);
+    setFruits(items);
   }, []);
 
   const handlePointerDown = (id: number, e: React.PointerEvent<HTMLImageElement>) => {
@@ -81,8 +93,8 @@ export function FloatingFruits() {
       id,
       startX: e.clientX,
       startY: e.clientY,
-      initialDragX: fruit.dragX,
-      initialDragY: fruit.dragY,
+      initialLeftPct: fruit.left,
+      initialTopPct: fruit.top,
     };
 
     setFruits((prev) =>
@@ -93,14 +105,17 @@ export function FloatingFruits() {
   const handlePointerMove = (id: number, e: React.PointerEvent<HTMLImageElement>) => {
     if (!activeDrag.current || activeDrag.current.id !== id) return;
 
-    const dx = e.clientX - activeDrag.current.startX;
-    const dy = e.clientY - activeDrag.current.startY;
+    const deltaX = e.clientX - activeDrag.current.startX;
+    const deltaY = e.clientY - activeDrag.current.startY;
 
-    const nextX = activeDrag.current.initialDragX + dx;
-    const nextY = activeDrag.current.initialDragY + dy;
+    const deltaPctX = (deltaX / window.innerWidth) * 100;
+    const deltaPctY = (deltaY / window.innerHeight) * 100;
+
+    const newLeft = Math.max(3, Math.min(87, activeDrag.current.initialLeftPct + deltaPctX));
+    const newTop = Math.max(3, Math.min(82, activeDrag.current.initialTopPct + deltaPctY));
 
     setFruits((prev) =>
-      prev.map((f) => (f.id === id ? { ...f, dragX: nextX, dragY: nextY } : f))
+      prev.map((f) => (f.id === id ? { ...f, left: newLeft, top: newTop } : f))
     );
   };
 
@@ -109,7 +124,7 @@ export function FloatingFruits() {
       try {
         (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
       } catch {
-        // Fallback if pointer release fails
+        // Fallback
       }
       activeDrag.current = null;
     }
@@ -134,13 +149,12 @@ export function FloatingFruits() {
               height: computedWidth,
               animationDuration: `${fruit.duration}s`,
               animationDelay: `${fruit.delay}s`,
-              transform: fruit.dragX || fruit.dragY ? `translate3d(${fruit.dragX}px, ${fruit.dragY}px, 0)` : undefined,
             }}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={fruit.src}
-              alt="fruit"
+              alt="food"
               className="fruit-img"
               draggable={false}
               onPointerDown={(e) => handlePointerDown(fruit.id, e)}

@@ -19,7 +19,7 @@
   --cta-outline-color: #2D5A3D;        /* CTA text outline matching KitchenOS main color */
 
   /* KitchenOS Title Scaling & Typography Options */
-  --title-scale: 2;                       /* Title scale factor (e.g. 0.5, 0.8, 1, 1.2, 1.5) */
+  --title-scale: 1;                       /* Title scale factor (e.g. 0.5, 0.8, 1, 1.2, 1.5) */
   --title-font-size: clamp(3.5rem, 8.5vw, 7.5rem); /* Title base font size */
   --title-letter-spacing: -0.01em;         /* Letter spacing */
 
@@ -105,7 +105,7 @@ body {
   position: fixed;
   bottom: 6vh;
   left: 5vw;
-  z-index: 1;
+  z-index: 10; /* Above normal floating fruits */
   margin: 0;
   padding: 0;
   max-width: 50vw;
@@ -126,7 +126,7 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%) scale(var(--cta-container-scale));
-  z-index: 15;
+  z-index: 15; /* Above normal floating fruits and title */
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -203,7 +203,7 @@ body {
   inset: 0;
   pointer-events: none;
   overflow: hidden;
-  z-index: 5;
+  z-index: 1; /* Below title (10) and CTA (15) */
 }
 
 .fruit-wrapper {
@@ -219,7 +219,7 @@ body {
 
 .fruit-wrapper.is-dragging {
   animation: none !important;
-  z-index: 100 !important;
+  z-index: 100 !important; /* Comes OVER everything while holding/dragging! */
 }
 
 .fruit-img {
@@ -237,43 +237,44 @@ body {
 .fruit-img:hover {
   transform: scale(var(--fruit-hover-scale, 1.25));
   filter: drop-shadow(0 22px 36px rgba(0, 0, 0, 0.35));
-  z-index: 20;
+  z-index: 2;
 }
 
 .fruit-wrapper.is-dragging .fruit-img {
   cursor: grabbing !important;
-  transform: scale(1.2) !important;
+  transform: scale(1.25) !important;
+  filter: drop-shadow(0 24px 36px rgba(0, 0, 0, 0.45));
 }
 
 @keyframes float0 {
   0% { transform: translate(0, 0) rotate(0deg); }
-  25% { transform: translate(50px, -60px) rotate(18deg); }
-  50% { transform: translate(-35px, -100px) rotate(-12deg); }
-  75% { transform: translate(-60px, -45px) rotate(22deg); }
+  25% { transform: translate(35px, -45px) rotate(14deg); }
+  50% { transform: translate(-25px, -70px) rotate(-10deg); }
+  75% { transform: translate(-45px, -30px) rotate(18deg); }
   100% { transform: translate(0, 0) rotate(0deg); }
 }
 
 @keyframes float1 {
   0% { transform: translate(0, 0) rotate(0deg); }
-  33% { transform: translate(-55px, 50px) rotate(-22deg); }
-  66% { transform: translate(45px, -70px) rotate(28deg); }
+  33% { transform: translate(-40px, 35px) rotate(-16deg); }
+  66% { transform: translate(35px, -50px) rotate(20deg); }
   100% { transform: translate(0, 0) rotate(0deg); }
 }
 
 @keyframes float2 {
   0% { transform: translate(0, 0) rotate(0deg); }
-  30% { transform: translate(60px, 55px) rotate(35deg); }
-  70% { transform: translate(-45px, -50px) rotate(-18deg); }
+  30% { transform: translate(45px, 40px) rotate(25deg); }
+  70% { transform: translate(-30px, -35px) rotate(-14deg); }
   100% { transform: translate(0, 0) rotate(0deg); }
 }
 
 @keyframes float3 {
   0% { transform: translate(0, 0) rotate(0deg); }
-  50% { transform: translate(-70px, -80px) rotate(-40deg); }
+  50% { transform: translate(-50px, -55px) rotate(-28deg); }
   100% { transform: translate(0, 0) rotate(0deg); }
 }
 
-.float-anim-0 { animation: float0 15s infinite ease-in-out; }
-.float-anim-1 { animation: float1 19s infinite ease-in-out; }
-.float-anim-2 { animation: float2 17s infinite ease-in-out; }
-.float-anim-3 { animation: float3 21s infinite ease-in-out; }
+.float-anim-0 { animation: float0 16s infinite ease-in-out; }
+.float-anim-1 { animation: float1 20s infinite ease-in-out; }
+.float-anim-2 { animation: float2 18s infinite ease-in-out; }
+.float-anim-3 { animation: float3 22s infinite ease-in-out; }
