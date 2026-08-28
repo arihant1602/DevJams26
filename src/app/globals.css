@@ -19,7 +19,7 @@
   --cta-outline-color: #2D5A3D;        /* CTA text outline matching KitchenOS main color */
 
   /* KitchenOS Title Scaling & Typography Options */
-  --title-scale: 1;                       /* Title scale factor (e.g. 0.5, 0.8, 1, 1.2, 1.5) */
+  --title-scale: 2;                       /* Title scale factor (e.g. 0.5, 0.8, 1, 1.2, 1.5) */
   --title-font-size: clamp(3.5rem, 8.5vw, 7.5rem); /* Title base font size */
   --title-letter-spacing: -0.01em;         /* Letter spacing */
 
@@ -105,7 +105,7 @@ body {
   position: fixed;
   bottom: 6vh;
   left: 5vw;
-  z-index: 2;
+  z-index: 1;
   margin: 0;
   padding: 0;
   max-width: 50vw;
@@ -203,7 +203,7 @@ body {
   inset: 0;
   pointer-events: none;
   overflow: hidden;
-  z-index: 1;
+  z-index: 5;
 }
 
 .fruit-wrapper {
