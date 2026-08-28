@@ -42,8 +42,24 @@ interface FruitState {
   isDragging: boolean;
 }
 
+// Pre-populated initial state ensures all 10 food items spawn instantly on initial load and reload
+const INITIAL_FRUITS: FruitState[] = UNIQUE_FOOD_IMAGES.map((src, i) => {
+  const zone = SCREEN_ZONES[i];
+  return {
+    id: i,
+    src,
+    left: zone.left,
+    top: zone.top,
+    baseSize: 140,
+    animType: i % 4,
+    duration: 15 + (i % 4) * 2,
+    delay: -(i * 1.5),
+    isDragging: false,
+  };
+});
+
 export function FloatingFruits() {
-  const [fruits, setFruits] = useState<FruitState[]>([]);
+  const [fruits, setFruits] = useState<FruitState[]>(INITIAL_FRUITS);
   const activeDrag = useRef<{
     id: number;
     startX: number;
@@ -53,34 +69,7 @@ export function FloatingFruits() {
   } | null>(null);
 
   useEffect(() => {
-    // Generate exactly 10 unique items placed in well-spaced screen zones
-    const items: FruitState[] = UNIQUE_FOOD_IMAGES.map((src, i) => {
-      const zone = SCREEN_ZONES[i];
-      const jitterX = (Math.random() - 0.5) * 6; // ±3%
-      const jitterY = (Math.random() - 0.5) * 6; // ±3%
-
-      const left = Math.max(5, Math.min(85, zone.left + jitterX));
-      const top = Math.max(5, Math.min(78, zone.top + jitterY));
-      const baseSize = Math.floor(Math.random() * 30) + 125; // 125px to 155px
-      const duration = Math.floor(Math.random() * 6) + 14;
-      const delay = -(Math.random() * 12);
-
-      return {
-        id: i,
-        src,
-        left,
-        top,
-        baseSize,
-        animType: i % 4,
-        duration,
-        delay,
-        isDragging: false,
-      };
-    });
-
-    setFruits(items);
-
-    // Window global pointer listeners prevent setPointerCapture errors completely
+    // Global pointer listeners for smooth, error-free dragging
     const handleWindowPointerMove = (e: PointerEvent) => {
       if (!activeDrag.current) return;
       const { id, startX, startY, initialLeftPct, initialTopPct } = activeDrag.current;
