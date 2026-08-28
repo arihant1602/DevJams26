@@ -74,9 +74,9 @@ a {
   overflow: hidden;
 }
 
-.hero-viewport::before {
+.page::before {
   content: "";
-  position: absolute;
+  position: fixed;
   top: 50%;
   left: 50%;
   width: 100vh;
