@@ -15,25 +15,34 @@ export function CtaButtons() {
     isDragging: false,
   });
 
-  const activeDrag = useRef<{
+  const dragStartRef = useRef<{
     target: "orange" | "green";
     startX: number;
     startY: number;
     initialX: number;
     initialY: number;
-    moved: boolean;
+    hasDragged: boolean;
   } | null>(null);
 
+  const performScroll = () => {
+    const targetEl = document.getElementById("what-it-is");
+    if (targetEl) {
+      targetEl.scrollIntoView({ behavior: "smooth" });
+    } else {
+      window.scrollTo({ top: window.innerHeight, behavior: "smooth" });
+    }
+  };
+
   useEffect(() => {
-    const handlePointerMove = (e: PointerEvent) => {
-      if (!activeDrag.current) return;
-      const { target, startX, startY, initialX, initialY } = activeDrag.current;
+    const handleWindowPointerMove = (e: PointerEvent) => {
+      if (!dragStartRef.current) return;
+      const { target, startX, startY, initialX, initialY } = dragStartRef.current;
 
       const dx = e.clientX - startX;
       const dy = e.clientY - startY;
 
-      if (Math.abs(dx) > 4 || Math.abs(dy) > 4) {
-        activeDrag.current.moved = true;
+      if (Math.hypot(dx, dy) > 5) {
+        dragStartRef.current.hasDragged = true;
       }
 
       if (target === "orange") {
@@ -43,38 +52,43 @@ export function CtaButtons() {
       }
     };
 
-    const handlePointerUp = () => {
-      if (!activeDrag.current) return;
-      const target = activeDrag.current.target;
-      activeDrag.current = null;
+    const handleWindowPointerUp = () => {
+      if (!dragStartRef.current) return;
+      const { target, hasDragged } = dragStartRef.current;
+      dragStartRef.current = null;
 
       if (target === "orange") {
         setOrangeBtn((prev) => ({ ...prev, isDragging: false }));
-      } else if (target === "green") {
+      } else {
         setGreenBtn((prev) => ({ ...prev, isDragging: false }));
+      }
+
+      // If user clicked (did not drag significantly), trigger smooth scroll immediately
+      if (!hasDragged) {
+        performScroll();
       }
     };
 
-    window.addEventListener("pointermove", handlePointerMove);
-    window.addEventListener("pointerup", handlePointerUp);
+    window.addEventListener("pointermove", handleWindowPointerMove);
+    window.addEventListener("pointerup", handleWindowPointerUp);
 
     return () => {
-      window.removeEventListener("pointermove", handlePointerMove);
-      window.removeEventListener("pointerup", handlePointerUp);
+      window.removeEventListener("pointermove", handleWindowPointerMove);
+      window.removeEventListener("pointerup", handleWindowPointerUp);
     };
   }, []);
 
-  const startDrag = (target: "orange" | "green", e: React.PointerEvent) => {
+  const handlePointerDown = (target: "orange" | "green", e: React.PointerEvent) => {
     const initialX = target === "orange" ? orangeBtn.dragX : greenBtn.dragX;
     const initialY = target === "orange" ? orangeBtn.dragY : greenBtn.dragY;
 
-    activeDrag.current = {
+    dragStartRef.current = {
       target,
       startX: e.clientX,
       startY: e.clientY,
       initialX,
       initialY,
-      moved: false,
+      hasDragged: false,
     };
 
     if (target === "orange") {
@@ -84,31 +98,17 @@ export function CtaButtons() {
     }
   };
 
-  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    // If the user actually dragged the button, don't trigger anchor navigation
-    if (activeDrag.current?.moved) {
-      e.preventDefault();
-      return;
-    }
-
-    // Otherwise, perform smooth scroll to the walkthrough section
-    e.preventDefault();
-    const elem = document.getElementById("what-it-is");
-    if (elem) {
-      elem.scrollIntoView({ behavior: "smooth" });
-    } else {
-      window.location.hash = "#what-it-is";
-    }
-  };
-
   return (
     <div className="center-cta-container">
       {/* Orange Main CTA - Get Started */}
-      <a
-        href="#what-it-is"
-        onClick={handleClick}
+      <button
+        type="button"
         className={`cta-btn cta-btn-orange ${orangeBtn.isDragging ? "is-dragging" : ""}`}
-        onPointerDown={(e) => startDrag("orange", e)}
+        onPointerDown={(e) => handlePointerDown("orange", e)}
+        onClick={(e) => {
+          e.preventDefault();
+          performScroll();
+        }}
         style={{
           transform: orangeBtn.dragX || orangeBtn.dragY
             ? `translate3d(${orangeBtn.dragX}px, ${orangeBtn.dragY}px, 0) scale(var(--orange-btn-scale, 1))`
@@ -123,14 +123,17 @@ export function CtaButtons() {
           draggable={false}
         />
         <span className="cta-btn-text kitchenos-title">Get Started</span>
-      </a>
+      </button>
 
       {/* Green Secondary CTA - What it is */}
-      <a
-        href="#what-it-is"
-        onClick={handleClick}
+      <button
+        type="button"
         className={`cta-btn cta-btn-green ${greenBtn.isDragging ? "is-dragging" : ""}`}
-        onPointerDown={(e) => startDrag("green", e)}
+        onPointerDown={(e) => handlePointerDown("green", e)}
+        onClick={(e) => {
+          e.preventDefault();
+          performScroll();
+        }}
         style={{
           transform: greenBtn.dragX || greenBtn.dragY
             ? `translate3d(${greenBtn.dragX}px, ${greenBtn.dragY}px, 0) scale(var(--green-btn-scale, 1))`
@@ -145,7 +148,7 @@ export function CtaButtons() {
           draggable={false}
         />
         <span className="cta-btn-text kitchenos-title">What it is</span>
-      </a>
+      </button>
     </div>
   );
 }
