@@ -40,7 +40,7 @@ export function FloatingFruits() {
       const src = FRUIT_IMAGES[i % FRUIT_IMAGES.length];
       const x = Math.floor(Math.random() * 75) + 10;
       const y = Math.floor(Math.random() * 65) + 10;
-      const size = Math.floor(Math.random() * 80) + 160;
+      const size = Math.floor(Math.random() * 60) + 140; // 140px to 200px tight shapes
       const duration = Math.floor(Math.random() * 10) + 14;
       const delay = -(Math.random() * 15);
 
@@ -108,10 +108,6 @@ export function FloatingFruits() {
       {fruits.map((fruit) => (
         <div
           key={fruit.id}
-          onPointerDown={(e) => handlePointerDown(fruit.id, e)}
-          onPointerMove={(e) => handlePointerMove(fruit.id, e)}
-          onPointerUp={() => handlePointerUp(fruit.id)}
-          onPointerCancel={() => handlePointerUp(fruit.id)}
           className={`floating-fruit ${fruit.isDragging ? "is-dragging" : `float-anim-${fruit.floatType}`}`}
           style={{
             left: `${fruit.x}%`,
@@ -123,7 +119,16 @@ export function FloatingFruits() {
           }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={fruit.src} alt="fruit" className="fruit-img" draggable={false} />
+          <img
+            src={fruit.src}
+            alt="fruit"
+            className="fruit-img"
+            draggable={false}
+            onPointerDown={(e) => handlePointerDown(fruit.id, e)}
+            onPointerMove={(e) => handlePointerMove(fruit.id, e)}
+            onPointerUp={() => handlePointerUp(fruit.id)}
+            onPointerCancel={() => handlePointerUp(fruit.id)}
+          />
         </div>
       ))}
     </div>
