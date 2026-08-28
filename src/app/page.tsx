@@ -5,7 +5,7 @@ export default function HomePage() {
     <main className="page">
       <FloatingFruits />
       <h1 className="bottom-left-title kitchenos-title">
-        Kitchen OS
+        KitchenOS
       </h1>
     </main>
   );
