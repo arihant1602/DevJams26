@@ -21,6 +21,7 @@ export function CtaButtons() {
     startY: number;
     initialX: number;
     initialY: number;
+    moved: boolean;
   } | null>(null);
 
   useEffect(() => {
@@ -30,6 +31,10 @@ export function CtaButtons() {
 
       const dx = e.clientX - startX;
       const dy = e.clientY - startY;
+
+      if (Math.abs(dx) > 4 || Math.abs(dy) > 4) {
+        activeDrag.current.moved = true;
+      }
 
       if (target === "orange") {
         setOrangeBtn((prev) => ({ ...prev, dragX: initialX + dx, dragY: initialY + dy }));
@@ -60,9 +65,6 @@ export function CtaButtons() {
   }, []);
 
   const startDrag = (target: "orange" | "green", e: React.PointerEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-
     const initialX = target === "orange" ? orangeBtn.dragX : greenBtn.dragX;
     const initialY = target === "orange" ? orangeBtn.dragY : greenBtn.dragY;
 
@@ -72,6 +74,7 @@ export function CtaButtons() {
       startY: e.clientY,
       initialX,
       initialY,
+      moved: false,
     };
 
     if (target === "orange") {
@@ -81,11 +84,29 @@ export function CtaButtons() {
     }
   };
 
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    // If the user actually dragged the button, don't trigger anchor navigation
+    if (activeDrag.current?.moved) {
+      e.preventDefault();
+      return;
+    }
+
+    // Otherwise, perform smooth scroll to the walkthrough section
+    e.preventDefault();
+    const elem = document.getElementById("what-it-is");
+    if (elem) {
+      elem.scrollIntoView({ behavior: "smooth" });
+    } else {
+      window.location.hash = "#what-it-is";
+    }
+  };
+
   return (
     <div className="center-cta-container">
       {/* Orange Main CTA - Get Started */}
       <a
-        href="#get-started"
+        href="#what-it-is"
+        onClick={handleClick}
         className={`cta-btn cta-btn-orange ${orangeBtn.isDragging ? "is-dragging" : ""}`}
         onPointerDown={(e) => startDrag("orange", e)}
         style={{
@@ -107,6 +128,7 @@ export function CtaButtons() {
       {/* Green Secondary CTA - What it is */}
       <a
         href="#what-it-is"
+        onClick={handleClick}
         className={`cta-btn cta-btn-green ${greenBtn.isDragging ? "is-dragging" : ""}`}
         onPointerDown={(e) => startDrag("green", e)}
         style={{
