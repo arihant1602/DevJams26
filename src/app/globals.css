@@ -14,10 +14,12 @@
 
   /* Color System */
   --paper: #f4f0e8;
-  --title-color: #2D5A3D;
+  --title-color: #2D5A3D;             /* KitchenOS text main color */
+  --cta-text-color: #ffffff;           /* CTA text color */
+  --cta-outline-color: #2D5A3D;        /* CTA text outline matching KitchenOS main color */
 
-  /* KitchenOS Title Options */
-  --title-scale: 1;                       /* Title scale factor (e.g. 0.8, 1, 1.2, 1.5) */
+  /* KitchenOS Title Scaling & Typography Options */
+  --title-scale: 1;                       /* Title scale factor (e.g. 0.5, 0.8, 1, 1.2, 1.5) */
   --title-font-size: clamp(3.5rem, 8.5vw, 7.5rem); /* Title base font size */
   --title-letter-spacing: -0.01em;         /* Letter spacing */
 
@@ -28,9 +30,8 @@
   --cta-gap: 1.5rem;                      /* Gap between CTA buttons */
 
   /* Floating Fruits Scaling & Interaction Options */
-  --fruit-size-multiplier: 1;             /* Global fruit size scale (e.g. 0.7, 1, 1.4, 2) */
-  --fruit-base-scale: 1;                  /* Base fruit scale factor */
-  --fruit-hover-scale: 1.25;              /* Fruit hover scale factor */
+  --fruit-scale: 1;                       /* Global fruit scale multiplier (e.g. 0.5, 0.8, 1, 1.5, 2) */
+  --fruit-hover-scale: 1.25;              /* Fruit hover scale multiplier (e.g. 1.15, 1.25, 1.4) */
 
   /* Background discPf Options */
   --bg-opacity: 0.35;                     /* Background image opacity (0 to 1) */
@@ -183,11 +184,17 @@ body {
   font-size: clamp(1.2rem, 2.2vw, 1.8rem);
   font-weight: 400;
   letter-spacing: 0.02em;
-  color: #ffffff;
+  color: var(--cta-text-color);
+  -webkit-text-stroke: 1.5px var(--cta-outline-color);
+  text-shadow: 
+    -1px -1px 0 var(--cta-outline-color),  
+     1px -1px 0 var(--cta-outline-color),
+    -1px  1px 0 var(--cta-outline-color),
+     1px  1px 0 var(--cta-outline-color),
+     0 3px 8px rgba(0, 0, 0, 0.35);
   white-space: nowrap;
   pointer-events: none;
   text-transform: uppercase;
-  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
 }
 
 /* Floating Fruits Styles */
@@ -199,18 +206,20 @@ body {
   z-index: 1;
 }
 
-.floating-fruit {
+.fruit-wrapper {
   position: absolute;
   pointer-events: none;
   user-select: none;
   display: flex;
   align-items: center;
   justify-content: center;
+  min-width: 20px;
+  min-height: 20px;
 }
 
-.floating-fruit.is-dragging {
+.fruit-wrapper.is-dragging {
   animation: none !important;
-  z-index: 50 !important;
+  z-index: 100 !important;
 }
 
 .fruit-img {
@@ -219,20 +228,21 @@ body {
   height: 100%;
   object-fit: contain;
   filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.18));
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.3s ease;
-  transform: scale(var(--fruit-base-scale));
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.25s ease;
+  transform: scale(1);
   transform-origin: center center;
+  touch-action: none;
 }
 
 .fruit-img:hover {
-  transform: scale(var(--fruit-hover-scale));
-  filter: drop-shadow(0 20px 32px rgba(0, 0, 0, 0.32));
+  transform: scale(var(--fruit-hover-scale, 1.25));
+  filter: drop-shadow(0 22px 36px rgba(0, 0, 0, 0.35));
   z-index: 20;
 }
 
-.fruit-img:active {
+.fruit-wrapper.is-dragging .fruit-img {
   cursor: grabbing !important;
-  transform: scale(1.3);
+  transform: scale(1.2) !important;
 }
 
 @keyframes float0 {

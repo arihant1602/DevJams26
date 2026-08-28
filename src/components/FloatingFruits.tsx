@@ -15,64 +15,74 @@ const FRUIT_IMAGES = [
   "/Images/Beer.png",
 ];
 
-interface FruitItem {
+interface FruitState {
   id: number;
   src: string;
-  x: number;
-  y: number;
-  size: number;
+  left: number;
+  top: number;
+  baseSize: number;
+  animType: number;
   duration: number;
   delay: number;
-  rotation: number;
-  floatType: number;
-  isDragging?: boolean;
+  dragX: number;
+  dragY: number;
+  isDragging: boolean;
 }
 
 export function FloatingFruits() {
-  const [fruits, setFruits] = useState<FruitItem[]>([]);
-  const dragInfo = useRef<{ id: number; startX: number; startY: number; initialX: number; initialY: number } | null>(null);
+  const [fruits, setFruits] = useState<FruitState[]>([]);
+  const activeDrag = useRef<{
+    id: number;
+    startX: number;
+    startY: number;
+    initialDragX: number;
+    initialDragY: number;
+  } | null>(null);
 
   useEffect(() => {
-    const items: FruitItem[] = [];
-    const totalCount = 12;
+    const initialItems: FruitState[] = [];
+    const count = 12;
 
-    for (let i = 0; i < totalCount; i++) {
+    for (let i = 0; i < count; i++) {
       const src = FRUIT_IMAGES[i % FRUIT_IMAGES.length];
-      const x = Math.floor(Math.random() * 75) + 10;
-      const y = Math.floor(Math.random() * 65) + 10;
-      const size = Math.floor(Math.random() * 60) + 140; // 140px to 200px tight shapes
-      const duration = Math.floor(Math.random() * 10) + 14;
-      const delay = -(Math.random() * 15);
+      const left = Math.floor(Math.random() * 70) + 10;
+      const top = Math.floor(Math.random() * 65) + 10;
+      const baseSize = Math.floor(Math.random() * 50) + 140;
+      const duration = Math.floor(Math.random() * 8) + 14;
+      const delay = -(Math.random() * 12);
 
-      items.push({
+      initialItems.push({
         id: i,
         src,
-        x,
-        y,
-        size,
+        left,
+        top,
+        baseSize,
+        animType: i % 4,
         duration,
         delay,
-        rotation: Math.floor(Math.random() * 360),
-        floatType: i % 4,
+        dragX: 0,
+        dragY: 0,
+        isDragging: false,
       });
     }
 
-    setFruits(items);
+    setFruits(initialItems);
   }, []);
 
-  const handlePointerDown = (id: number, e: React.PointerEvent) => {
+  const handlePointerDown = (id: number, e: React.PointerEvent<HTMLImageElement>) => {
     e.preventDefault();
+    e.stopPropagation();
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
 
-    const targetFruit = fruits.find((f) => f.id === id);
-    if (!targetFruit) return;
+    const fruit = fruits.find((f) => f.id === id);
+    if (!fruit) return;
 
-    dragInfo.current = {
+    activeDrag.current = {
       id,
       startX: e.clientX,
       startY: e.clientY,
-      initialX: targetFruit.x,
-      initialY: targetFruit.y,
+      initialDragX: fruit.dragX,
+      initialDragY: fruit.dragY,
     };
 
     setFruits((prev) =>
@@ -80,23 +90,28 @@ export function FloatingFruits() {
     );
   };
 
-  const handlePointerMove = (id: number, e: React.PointerEvent) => {
-    if (!dragInfo.current || dragInfo.current.id !== id) return;
+  const handlePointerMove = (id: number, e: React.PointerEvent<HTMLImageElement>) => {
+    if (!activeDrag.current || activeDrag.current.id !== id) return;
 
-    const dx = ((e.clientX - dragInfo.current.startX) / window.innerWidth) * 100;
-    const dy = ((e.clientY - dragInfo.current.startY) / window.innerHeight) * 100;
+    const dx = e.clientX - activeDrag.current.startX;
+    const dy = e.clientY - activeDrag.current.startY;
 
-    const newX = Math.max(0, Math.min(92, dragInfo.current.initialX + dx));
-    const newY = Math.max(0, Math.min(92, dragInfo.current.initialY + dy));
+    const nextX = activeDrag.current.initialDragX + dx;
+    const nextY = activeDrag.current.initialDragY + dy;
 
     setFruits((prev) =>
-      prev.map((f) => (f.id === id ? { ...f, x: newX, y: newY } : f))
+      prev.map((f) => (f.id === id ? { ...f, dragX: nextX, dragY: nextY } : f))
     );
   };
 
-  const handlePointerUp = (id: number) => {
-    if (dragInfo.current?.id === id) {
-      dragInfo.current = null;
+  const handlePointerUp = (id: number, e: React.PointerEvent<HTMLImageElement>) => {
+    if (activeDrag.current?.id === id) {
+      try {
+        (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
+      } catch {
+        // Fallback if pointer release fails
+      }
+      activeDrag.current = null;
     }
     setFruits((prev) =>
       prev.map((f) => (f.id === id ? { ...f, isDragging: false } : f))
@@ -105,32 +120,37 @@ export function FloatingFruits() {
 
   return (
     <div className="floating-container">
-      {fruits.map((fruit) => (
-        <div
-          key={fruit.id}
-          className={`floating-fruit ${fruit.isDragging ? "is-dragging" : `float-anim-${fruit.floatType}`}`}
-          style={{
-            left: `${fruit.x}%`,
-            top: `${fruit.y}%`,
-            width: `calc(${fruit.size}px * var(--fruit-size-multiplier, 1))`,
-            height: `calc(${fruit.size}px * var(--fruit-size-multiplier, 1))`,
-            animationDuration: `${fruit.duration}s`,
-            animationDelay: `${fruit.delay}s`,
-          }}
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={fruit.src}
-            alt="fruit"
-            className="fruit-img"
-            draggable={false}
-            onPointerDown={(e) => handlePointerDown(fruit.id, e)}
-            onPointerMove={(e) => handlePointerMove(fruit.id, e)}
-            onPointerUp={() => handlePointerUp(fruit.id)}
-            onPointerCancel={() => handlePointerUp(fruit.id)}
-          />
-        </div>
-      ))}
+      {fruits.map((fruit) => {
+        const computedWidth = `calc(${fruit.baseSize}px * var(--fruit-scale, 1))`;
+
+        return (
+          <div
+            key={fruit.id}
+            className={`fruit-wrapper ${fruit.isDragging ? "is-dragging" : `float-anim-${fruit.animType}`}`}
+            style={{
+              left: `${fruit.left}%`,
+              top: `${fruit.top}%`,
+              width: computedWidth,
+              height: computedWidth,
+              animationDuration: `${fruit.duration}s`,
+              animationDelay: `${fruit.delay}s`,
+              transform: fruit.dragX || fruit.dragY ? `translate3d(${fruit.dragX}px, ${fruit.dragY}px, 0)` : undefined,
+            }}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={fruit.src}
+              alt="fruit"
+              className="fruit-img"
+              draggable={false}
+              onPointerDown={(e) => handlePointerDown(fruit.id, e)}
+              onPointerMove={(e) => handlePointerMove(fruit.id, e)}
+              onPointerUp={(e) => handlePointerUp(fruit.id, e)}
+              onPointerCancel={(e) => handlePointerUp(fruit.id, e)}
+            />
+          </div>
+        );
+      })}
     </div>
   );
 }
